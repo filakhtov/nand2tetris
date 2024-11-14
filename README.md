@@ -26,3 +26,8 @@ The `Mult.asm` is developed as part of the fourth project and is designed to
 multiply two numbers stored in `RAM[0]` and `RAM[1]` and save the result of the
 computation in the `RAM[2]` register. It is guaranteed that input numbers will
 be greater or equal to zero and the output number will be less than 32768.
+
+The `Fill.asm` is the second part of the fourth project and provides an
+opportunity to handle I/O using the machine language. When any keyboard button
+is pressed, every single screen pixel will be progressively lit. Once the button
+is released, all pixels will progressively turn off.
