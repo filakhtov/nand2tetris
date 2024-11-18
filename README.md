@@ -31,3 +31,12 @@ The `Fill.asm` is the second part of the fourth project and provides an
 opportunity to handle I/O using the machine language. When any keyboard button
 is pressed, every single screen pixel will be progressively lit. Once the button
 is released, all pixels will progressively turn off.
+
+The fifth and the final hardware project consists of the CPU, Memory and a whole
+computer chips.
+
+The `Memory.hdl` represents a RAM chip plus keyboard and screen memory mapping.
+Given an address the memory chip will output a currently pressed keyboard
+character, screen region or RAM register, depending on the address. If the load
+bit is set and the address points either to a screen region or RAM region, the
+Memory chip will write `in` bits into the respective region.
