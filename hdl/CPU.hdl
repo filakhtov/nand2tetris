@@ -1,0 +1,79 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/5/CPU.hdl
+/**
+ * The Hack Central Processing unit (CPU).
+ * Parses the binary code in the instruction input and executes it according to the
+ * Hack machine language specification. In the case of a C-instruction, computes the
+ * function specified by the instruction. If the instruction specifies to read a memory
+ * value, the inM input is expected to contain this value. If the instruction specifies
+ * to write a value to the memory, sets the outM output to this value, sets the addressM
+ * output to the target address, and asserts the writeM output (when writeM = 0, any
+ * value may appear in outM).
+ * If the reset input is 0, computes the address of the next instruction and sets the
+ * pc output to that value. If the reset input is 1, sets pc to 0.
+ * Note: The outM and writeM outputs are combinational: they are affected by the
+ * instruction's execution during the current cycle. The addressM and pc outputs are
+ * clocked: although they are affected by the instruction's execution, they commit to
+ * their new values only in the next cycle.
+ */
+CHIP CPU {
+
+    IN  inM[16],         // M value input  (M = contents of RAM[A])
+        instruction[16], // Instruction for execution
+        reset;           // Signals whether to re-start the current
+                         // program (reset==1) or continue executing
+                         // the current program (reset==0).
+
+    OUT outM[16],        // M value output
+        writeM,          // Write to M? 
+        addressM[15],    // Address in data memory (of M)
+        pc[15];          // address of next instruction
+
+    PARTS:
+    // Check if we are dealing with A or C instruction
+    DMux(in=true,sel=instruction[15],a=isA,b=isC);
+    // Check if comp results in a positive number
+    Or(a=aluZr,b=aluNg,out=aluZrOrNg);
+    Not(in=aluZrOrNg,out=aluPos);
+    // Figure out the jump condition
+    And(a=instruction[0],b=aluPos,out=jgt); // > 0
+    And(a=instruction[1],b=aluZr,out=jeq);  // = 0
+    And(a=instruction[2],b=aluNg,out=jlt);  // < 0
+    Or(a=jgt,b=jeq,out=jge);
+    Or(a=jge,b=jlt,out=jmp);
+    And(a=jmp,b=isC,out=loadPC);
+    // If we are not jumping, then we are incrementing the PC
+    Not(in=loadPC,out=inc);
+    // Figure out the ALU[x] input
+    Mux16(a=outA,b=inM,sel=instruction[12],out=aluY);
+    // Figure out if we need to write to A
+    Or(a=instruction[5],b=isA,out=loadA);
+    // Figure out what we are writing into A
+    Mux16(a=aluOut,b=instruction,sel=isA,out=inA);
+    // Figure out if we need to write to D
+    And(a=isC,b=instruction[4],out=loadD);
+    // Figure out if we need to write to RAM[A]
+    And(a=isC,b=instruction[3],out=writeM);
+
+    ALU(
+        x=outD,
+        y=aluY,
+        zx=instruction[11],
+        nx=instruction[10],
+        zy=instruction[9],
+        ny=instruction[8],
+        f=instruction[7],
+        no=instruction[6],
+        out=aluOut,
+        out=outM,
+        zr=aluZr,
+        ng=aluNg,
+    );
+    PC(in=outA,load=loadPC,inc=inc,reset=reset,out[0..14]=pc);
+    // D Register
+    Register(in=aluOut,load=loadD,out=outD);
+    // A Register
+    Register(in=inA,load=loadA,out=outA,out[0..14]=addressM);
+}

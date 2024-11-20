@@ -40,3 +40,9 @@ Given an address the memory chip will output a currently pressed keyboard
 character, screen region or RAM register, depending on the address. If the load
 bit is set and the address points either to a screen region or RAM region, the
 Memory chip will write `in` bits into the respective region.
+
+The `CPU.hdl` represents a final CPU assembly responsible for running the fetch-
+execute cycle, fetching the instructions from ROM instruction memory, performing
+the instruction decoding, reading the data from RAM, performing the compuntation
+and storing the results into the RAM, then deciding the next instruction
+address.
