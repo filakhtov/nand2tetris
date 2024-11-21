@@ -46,3 +46,8 @@ execute cycle, fetching the instructions from ROM instruction memory, performing
 the instruction decoding, reading the data from RAM, performing the compuntation
 and storing the results into the RAM, then deciding the next instruction
 address.
+
+The `Computer.hdl` represent a whole computer, with RAM, keyboard and screen IO
+memory maps, ROM instruction memory and a CPU. It will execute the program
+stored in ROM starting from instruction address 0 onwards. It can be reset by
+sending a signal on the `reset` pin to re-start the program from the beginning.
